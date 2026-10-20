@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect x="4" y="4" width="112" height="112" rx="24" fill="#EE7D01" />
+  <!-- modules of a project, generated diagonally: solid, then tints, then still dashed -->
+  <rect x="24" y="24" width="20" height="20" rx="5" fill="#FFFFFF" />
+  <rect x="50" y="24" width="20" height="20" rx="5" fill="#FADBB8" />
+  <rect x="76" y="24" width="20" height="20" rx="5" fill="#F6B873" />
+  <rect x="24" y="50" width="20" height="20" rx="5" fill="#FADBB8" />
+  <rect x="50" y="50" width="20" height="20" rx="5" fill="#F6B873" />
+  <rect x="77.25" y="51.25" width="17.5" height="17.5" rx="5" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-dasharray="4 3" />
+  <rect x="24" y="76" width="20" height="20" rx="5" fill="#F6B873" />
+  <rect x="51.25" y="77.25" width="17.5" height="17.5" rx="5" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-dasharray="4 3" />
+  <rect x="77.25" y="77.25" width="17.5" height="17.5" rx="5" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-dasharray="4 3" stroke-opacity="0.65" />
+</svg>

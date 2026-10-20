@@ -1,0 +1,11 @@
+ID: <%= projectNameNormalized %>-test
+_schema-version: 3.3.0
+extends: <%= projectNameNormalized %>
+
+parameters:
+    schema: <%= dbSchema %>_TEST
+    ram: 1024M
+    diskQuota: 512M
+    maxOldSpaceSize: 720
+    instanceMinCount: 1
+    instanceMaxCount: 2

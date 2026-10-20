@@ -1,0 +1,6 @@
+{
+  // Editor, formatter and extension defaults come from the cbs dev container
+  // features (dev-defaults, typescript, cap-dev-stack, fiori-dev-stack).
+  // Only project-specific settings belong here.
+  "i18n-ally.localesPaths": ["i18n", "webapp/i18n"]
+}

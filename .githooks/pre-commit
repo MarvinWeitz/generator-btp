@@ -1,0 +1,9 @@
+#!/bin/sh
+# Lints and formats the staged files. Enable once per clone with: npm run hooks
+# --config stops lint-staged from also running the lint-staged config of generated
+# projects in generators/cap/additions/package.json. (The eslint task names its config
+# for the same reason: ESLint would otherwise use the templates' own eslint.config.mjs.)
+npx --no -- lint-staged --config package.json || {
+  echo "generator-btp: lint-staged failed, commit stopped. (Skip once with: git commit --no-verify)" >&2
+  exit 1
+}

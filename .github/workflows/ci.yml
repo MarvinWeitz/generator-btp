@@ -1,0 +1,58 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+  test:
+    name: Test generators (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+  test-summary:
+    # The single check that branch protection requires, so the rule does not have to list
+    # every Node version in the matrix. always() makes it run, and fail, when a test job
+    # fails; a skipped required check would count as passing.
+    name: Test generators
+    needs: [lint, test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: test "${{ needs.lint.result }}" = "success" && test "${{ needs.test.result }}" = "success"
+  devcontainer:
+    # Scaffolds a CAP project, boots the devcontainer it generates and makes the project's
+    # first commit inside it (lint-staged + npm test). Slow, so it is not a required check;
+    # it runs on every pull request and on main so a broken image or feature still shows up.
+    name: Validate generated devcontainer
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:devcontainer

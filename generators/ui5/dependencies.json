@@ -1,0 +1,9 @@
+{
+  "devDependencies": [
+    "eslint@10",
+    "typescript-eslint",
+    "eslint-config-prettier",
+    "@cbs-consulting/tools",
+    "@ui5/linter"
+  ]
+}

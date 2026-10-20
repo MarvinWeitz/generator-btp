@@ -1,0 +1,207 @@
+_schema-version: 3.3.0
+ID: <%= projectNameNormalized %>
+description: MTA for <%= projectName %>
+version: 1.0.0
+modules:
+  - name: <%= projectNameNormalized %>-srv
+    type: nodejs
+    path: gen/srv
+    requires:
+      - name: <%= projectNameNormalized %>-db-service
+      - name: <%= projectNameNormalized %>-auth-service
+      - name: <%= projectNameNormalized %>-destination-service
+      - name: <%= projectNameNormalized %>-connectivity-service
+      - name: <%= projectNameNormalized %>-autoscaler
+        parameters:
+          config:
+            instance_min_count: ${instanceMinCount}
+            instance_max_count: ${instanceMaxCount}
+            scaling_rules:
+              - metric_type: memoryutil
+                threshold: 70
+                operator: '>'
+                adjustment: '+1'
+                breach_duration_secs: 60
+                cool_down_secs: 120
+              - metric_type: memoryutil
+                threshold: 65
+                operator: '<='
+                adjustment: '-1'
+                breach_duration_secs: 300
+                cool_down_secs: 300
+    provides:
+      - name: srv-api
+        public: true
+        properties:
+          srv-url: ${default-live-url}
+    properties:
+      SAP_CLOUD_SDK_LOG_LEVEL: 'error'
+      OPTIMIZE_MEMORY: true
+      NODE_OPTIONS: '--max-old-space-size=${maxOldSpaceSize}'
+    parameters:
+      buildpack: nodejs_buildpack
+      memory: ${ram}
+      disk-quota: ${diskQuota}
+      command: node ./node_modules/@sap/cds/bin/serve
+    build-parameters:
+      builder: custom
+      commands: []
+      ignore:
+        - node_modules/
+
+  - name: <%= projectNameNormalized %>-db-deployer
+    type: hdb
+    path: gen/db
+    properties:
+      HDI_DEPLOY_OPTIONS: '{"auto_undeploy":true, "use_hdb": true, "exit" : true}'
+    requires:
+      - name: <%= projectNameNormalized %>-db-service
+        properties:
+          TARGET_CONTAINER: ~{hdi-container-name}
+    parameters:
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: custom
+      commands: []
+      ignore:
+        - node_modules/
+
+  - name: <%= projectNameNormalized %>-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: <%= projectNameNormalized %>-destination-service
+        parameters:
+          content-target: true
+      - name: <%= projectNameNormalized %>-html-repo-runtime-service
+        parameters:
+          service-key:
+            name: <%= projectNameNormalized %>-html-repo-runtime-service-key
+      - name: <%= projectNameNormalized %>-html-repo-host-service
+        parameters:
+          service-key:
+            name: <%= projectNameNormalized %>-html-repo-host-service-key
+      - name: <%= projectNameNormalized %>-auth-service
+        parameters:
+          service-key:
+            name: <%= projectNameNormalized %>-auth-service-key
+    parameters:
+      content:
+        instance:
+          destinations:
+            - Name: <%= projectNameNormalized %>-html-repo-host-service
+              ServiceInstanceName: <%= projectNameNormalized %>-html-repo-host-service
+              ServiceKeyName: <%= projectNameNormalized %>-html-repo-host-service-key
+              sap.cloud.service: <%= projectNameNormalized %>
+            - Authentication: OAuth2UserTokenExchange
+              Name: <%= projectNameNormalized %>-auth-service
+              ServiceInstanceName: <%= projectNameNormalized %>-auth-service
+              ServiceKeyName: <%= projectNameNormalized %>-auth-service-key
+              sap.cloud.service: <%= projectNameNormalized %>
+          existing_destinations_policy: update
+    build-parameters:
+      no-source: true
+
+  # - name: <%= projectNameNormalized %>-ui-deployer
+  #   type: com.sap.application.content
+  #   path: .
+  #   requires:
+  #     - name: <%= projectNameNormalized %>-html-repo-host-service
+  #       parameters:
+  #         content-target: true
+  #   build-parameters:
+  #     build-result: resources
+  #     requires: 
+  #       - artifacts:
+  #           - app-placeholder.zip
+  #         name: app-placehoder
+  #         target-path: resources/
+
+  # - name: app-placeholder
+  #   type: html5
+  #   path: .
+  #   build-parameters:
+  #     build-result: dist
+  #     builder: custom
+  #     commands: []
+  #     supported-platforms: []
+
+resources:
+  - name: <%= projectNameNormalized %>-db-service
+    type: com.sap.xs.hdi-container
+    parameters:
+      config:
+        schema: ${schema}
+      service: hana
+      service-plan: hdi-shared
+    properties:
+      hdi-container-name: ${service-name}
+
+  - name: <%= projectNameNormalized %>-auth-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        tenant-mode: dedicated
+        xsappname: <%= projectNameNormalized %>-${org}-${space}
+      path: ./xs-security.json
+      service: xsuaa
+      service-keys:
+        - name: <%= projectNameNormalized %>-auth-service-key
+      service-plan: application
+      
+  - name: <%= projectNameNormalized %>-html-repo-host-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-name: <%= projectNameNormalized %>-html-repo-host-service
+      service-plan: app-host
+
+  - name: <%= projectNameNormalized %>-html-repo-runtime-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-name: <%= projectNameNormalized %>-html-repo-runtime-service
+      service-plan: app-runtime
+
+  - name: <%= projectNameNormalized %>-destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        HTML5Runtime_enabled: true
+        init_data:
+          instance:
+            destinations:
+              - Authentication: NoAuthentication
+                Name: ui5
+                ProxyType: Internet
+                Type: HTTP
+                URL: https://ui5.sap.com
+              - Authentication: NoAuthentication
+                HTML5.DynamicDestination: true
+                HTML5.ForwardAuthToken: true
+                Name: <%= projectNameNormalized %>-srv-api
+                ProxyType: Internet
+                Type: HTTP
+                URL: ~{srv-api/srv-url}
+            existing_destinations_policy: update
+        version: 1.0.0
+      service: destination
+      service-name: <%= projectNameNormalized %>-destination-service
+      service-plan: lite
+    requires:
+      - name: srv-api
+
+  - name: <%= projectNameNormalized %>-connectivity-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: connectivity
+      service-plan: lite
+
+  - name: <%= projectNameNormalized %>-autoscaler
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: autoscaler
+      service-plan: standard
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+  schema: null

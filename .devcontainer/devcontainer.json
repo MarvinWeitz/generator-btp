@@ -1,0 +1,15 @@
+{
+  "name": "Generator BTP",
+  "image": "mcr.microsoft.com/devcontainers/base:debian",
+  // Name docker container
+  "runArgs": [
+    "--name=generator-btp"
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/node:2": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:3": {
+      "moby": false
+    },
+    "ghcr.io/cbs-consulting/container-features/dev-defaults:1": {}
+  }
+}

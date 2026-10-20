@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
+    "ui5lint": "ui5lint",
+    "ui5lint-details": "ui5lint --details",
+    "ui5lint-fix": "ui5lint --fix"
+  },
+  "cds": {
+    "typer": {
+      "outputDirectory": "@cds-models",
+      "propertiesOptional": false,
+      "inlineDeclarations": "structured",
+      "ieee754compatible": true
+    }
+  }
+}
