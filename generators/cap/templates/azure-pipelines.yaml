@@ -11,6 +11,7 @@ trigger:
 
 pool:
   vmImage: 'ubuntu-latest'
+<% if (pipelineRepository) { -%>
 
 resources:
   repositories:
@@ -31,3 +32,43 @@ steps:
         resources/**
 
   # Add custom steps here
+<% } else { -%>
+
+steps:
+  - task: NodeTool@0
+    displayName: Install Node.js
+    inputs:
+      versionSpec: '22.x'
+
+  - script: npm ci
+    displayName: Install dependencies
+
+  - script: npm run lint
+    displayName: Lint
+
+  - script: npm test
+    displayName: Test
+
+  - script: npm install --global mbt
+    displayName: Install MTA Build Tool
+
+  - script: npm run build && mbt build --mtar archive.mtar
+    displayName: Build MTA archive
+
+  - task: CopyFiles@2
+    displayName: Collect deployment files
+    inputs:
+      contents: |
+        mta_archives/archive.mtar
+        mta-ext/**
+      targetFolder: $(Build.ArtifactStagingDirectory)
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish deployment files
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)
+      artifact: mta
+
+  # Add custom steps here, for example a deployment to Cloud Foundry with
+  # `cf deploy mta_archives/archive.mtar -e mta-ext/dev.mtaext`.
+<% } -%>
