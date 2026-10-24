@@ -10,6 +10,9 @@ release notes.
 
 ## Unreleased
 
+- The personal HDI container script uses the current `cf target` instead of
+  internal org and space defaults; pass `--org`/`--space` to retarget.
+
 ## 1.5.0 - 2026-10-23
 
 - Replace Jest with Vitest for testing in CAP projects
