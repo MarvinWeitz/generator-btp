@@ -10,7 +10,9 @@ export const PRESET_ENV_VAR = "BTP_GENERATOR_PRESET";
 const DEFAULT_PRESET = {
   // Public image that cbs's private base image mirrors.
   baseImage: "mcr.microsoft.com/devcontainers/base:debian",
-  pipelineRepository: "Central-Pipelines/central-cap-pipeline",
+  // Empty means the generated project gets a self-contained pipeline instead
+  // of a template from a shared repository.
+  pipelineRepository: "",
 };
 
 export const PRESETS = {
@@ -20,6 +22,8 @@ export const PRESETS = {
     // Same image, pulled through cbs's Docker Hub organisation so pulls count
     // against the company's Docker licences. Requires `docker login`.
     baseImage: "cbsgroupdocker/cbs-debian:latest",
+    // cbs's shared CAP pipeline in Azure DevOps.
+    pipelineRepository: "Central-Pipelines/central-cap-pipeline",
   },
 };
 

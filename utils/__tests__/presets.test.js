@@ -25,6 +25,16 @@ describe("resolvePreset", () => {
     );
   });
 
+  it("has no shared pipeline repository by default", () => {
+    expect(resolvePreset("default").pipelineRepository).toBe("");
+  });
+
+  it("uses the cbs shared pipeline repository for the cbs preset", () => {
+    expect(resolvePreset("cbs").pipelineRepository).toBe(
+      "Central-Pipelines/central-cap-pipeline",
+    );
+  });
+
   it("rejects an unknown preset name", () => {
     expect(() => resolvePreset("acme")).toThrow(/Unknown preset "acme"/);
   });

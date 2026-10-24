@@ -156,13 +156,14 @@ export default class extends Generator {
           type: "input",
           name: "pipelineRepository",
           message:
-            "Enter the shared pipeline repository path (PROJECT/REPOSITORY):",
-          default: preset.pipelineRepository,
+            "Enter the shared pipeline repository path (PROJECT/REPOSITORY), or leave empty for a self-contained pipeline:",
+          default: preset.pipelineRepository || undefined,
           validate(input) {
-            if (/^[^/\s]+\/[^/\s]+$/.test(input.trim())) {
+            const value = input?.trim() ?? "";
+            if (value === "" || /^[^/\s]+\/[^/\s]+$/.test(value)) {
               return true;
             }
-            return "Enter the shared pipeline repository as PROJECT/REPOSITORY.";
+            return "Enter the shared pipeline repository as PROJECT/REPOSITORY, or leave it empty.";
           },
         },
         useBestPracticesPrompt(),
@@ -170,8 +171,7 @@ export default class extends Generator {
 
       const initialAzureAnswers = await this.prompt(initialAzurePrompts);
       Object.assign(answers, initialAzureAnswers);
-      answers.pipelineRepository =
-        answers.pipelineRepository?.trim() || preset.pipelineRepository;
+      answers.pipelineRepository = answers.pipelineRepository?.trim() ?? "";
 
       // Parse Azure DevOps repository URL to extract organization, project, and repo names
       const parsedRepo = parseAzureRepoUrl(answers.azureRepoUrl);
