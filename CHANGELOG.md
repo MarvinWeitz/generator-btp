@@ -10,6 +10,9 @@ release notes.
 
 ## Unreleased
 
+- Add contributing guide, code of conduct, security policy, issue and pull
+  request templates, and Dependabot updates for npm, GitHub Actions and the
+  dev container.
 - The personal HDI container script uses the current `cf target` instead of
   internal org and space defaults; pass `--org`/`--space` to retarget.
 - Without a preset, the CAP generator writes a self-contained

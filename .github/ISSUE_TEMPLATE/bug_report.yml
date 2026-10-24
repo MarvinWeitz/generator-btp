@@ -1,0 +1,55 @@
+name: Bug report
+description: Something in the generator or in a generated project does not work as expected.
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The command you ran, the answers you gave to the prompts, and any preset you used.
+      placeholder: |
+        1. yo @cbs-consulting/btp
+        2. Choose ...
+    validations:
+      required: true
+  - type: dropdown
+    id: generator
+    attributes:
+      label: Generator
+      options:
+        - app (interactive menu)
+        - cap
+        - ui5
+        - devcontainer
+        - setup-azure-devops
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Generator version
+      description: Output of `npm ls -g @cbs-consulting/generator-btp`.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Node.js version, npm version and operating system, or whether you ran it in the dev container.
+      placeholder: Node 22.22.1, npm 10.9, macOS 15
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant error output. It is formatted as code automatically.
+      render: shell
