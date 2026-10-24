@@ -10,6 +10,10 @@ release notes.
 
 ## Unreleased
 
+- Add contributing guide, code of conduct, security policy, issue and pull
+  request templates, and Dependabot updates for npm, GitHub Actions and the
+  dev container.
+
 ## 1.5.0 - 2026-10-23
 
 - Replace Jest with Vitest for testing in CAP projects
