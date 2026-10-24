@@ -4,8 +4,8 @@ set -euo pipefail
 
 profile="ownHDI"
 service_instance="<%= projectNameNormalized %>-db-service"
-cf_org="dev-lw"
-cf_space="smart"
+cf_org=""
+cf_space=""
 
 usage() {
     cat <<'EOF'
@@ -15,13 +15,13 @@ Usage:
     scripts/create-own-hdi-container.sh [service-instance] [--org <org>] [--space <space>]
 
 Options:
-    --org <org>                        CF org to target (default: dev-lw)
-    --space <space>                    CF space to target (default: smart)
+    --org <org>                        CF org to target (default: current cf target)
+    --space <space>                    CF space to target (default: current cf target)
   -h, --help                         Show this help
 
 Examples:
   scripts/create-own-hdi-container.sh
-  scripts/create-own-hdi-container.sh <%= projectNameNormalized %>-db-service --org dev-lw --space smart
+  scripts/create-own-hdi-container.sh <%= projectNameNormalized %>-db-service --org my-org --space dev
 EOF
 }
 
@@ -72,12 +72,24 @@ fi
 echo "Using configuration:"
 echo "  HDI instance:      $service_instance"
 echo "  CAP profile:       $profile"
-echo "  CF org:            $cf_org"
-echo "  CF space:          $cf_space"
+echo "  CF org:            ${cf_org:-<current target>}"
+echo "  CF space:          ${cf_space:-<current target>}"
+
+target_args=()
+[[ -n "$cf_org" ]] && target_args+=(-o "$cf_org")
+[[ -n "$cf_space" ]] && target_args+=(-s "$cf_space")
 
 echo
-echo "Targeting CF org/space..."
-cf target -o "$cf_org" -s "$cf_space"
+if [[ ${#target_args[@]} -gt 0 ]]; then
+    echo "Targeting CF org/space..."
+    cf target "${target_args[@]}"
+else
+    echo "Using current CF target:"
+    if ! cf target; then
+        echo "Error: no CF target set. Run 'cf login' or pass --org/--space." >&2
+        exit 1
+    fi
+fi
 
 echo
 echo "Checking existing HDI instance..."
