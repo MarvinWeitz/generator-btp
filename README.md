@@ -82,8 +82,10 @@ then adds:
 - `mta.yaml` with extensions for dev, test and prod in `mta-ext/`
 - git aliases for ticket-based branches and pull requests (`.gitconfig.aliases`)
 - the [dev container](#devcontainer), always
-- the [Azure DevOps setup](#azure-devops) and an `azure-pipelines.yaml` that
-  uses a shared CAP pipeline repository, if you use Azure DevOps
+- the [Azure DevOps setup](#azure-devops) and an `azure-pipelines.yaml`, if you
+  use Azure DevOps. Without a shared pipeline repository, the pipeline lints,
+  tests and builds the MTA archive on its own and publishes it as the `mta`
+  artifact. With one, it uses that repository's `cap-pipeline.yml` template.
 
 ```text
 my-cap-project/
@@ -177,7 +179,7 @@ BTP_GENERATOR_PRESET=./acme-preset.json yo @cbs-consulting/btp:devcontainer
 | Key                  | `default`                                     | `cbs`                                                     |
 | -------------------- | --------------------------------------------- | --------------------------------------------------------- |
 | `baseImage`          | `mcr.microsoft.com/devcontainers/base:debian` | `cbsgroupdocker/cbs-debian:latest` (needs `docker login`) |
-| `pipelineRepository` | `Central-Pipelines/central-cap-pipeline`      | same                                                      |
+| `pipelineRepository` | empty (self-contained pipeline)               | `Central-Pipelines/central-cap-pipeline`                  |
 
 A preset can also be a JSON file. Its keys override the `default` preset, and
 an unknown key stops the run, so a typo does not go unnoticed:
