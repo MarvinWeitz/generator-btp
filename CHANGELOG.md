@@ -10,6 +10,16 @@ release notes.
 
 ## Unreleased
 
+- Add contributing guide, code of conduct, security policy, issue and pull
+  request templates, and Dependabot updates for npm, GitHub Actions and the
+  dev container.
+- The personal HDI container script uses the current `cf target` instead of
+  internal org and space defaults; pass `--org`/`--space` to retarget.
+- Without a preset, the CAP generator writes a self-contained
+  `azure-pipelines.yaml` that lints, tests and builds the MTA archive, instead
+  of referencing the internal `Central-Pipelines/central-cap-pipeline`
+  repository. `--preset cbs` keeps using that shared pipeline.
+
 ## 1.5.0 - 2026-10-23
 
 - Replace Jest with Vitest for testing in CAP projects

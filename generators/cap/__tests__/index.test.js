@@ -107,7 +107,7 @@ describe("generator-btp:cap", () => {
       customerName,
       dbSchema,
       useAzureDevOps,
-      pipelineRepository = "Central-Pipelines/central-cap-pipeline",
+      pipelineRepository,
       azureRepoUrl,
       useBestPractices,
       cdsFeatures,
@@ -219,9 +219,9 @@ describe("generator-btp:cap", () => {
         }
       });
 
-      it("should reference the shared Azure pipeline repository", () => {
+      it("should reference the shared Azure pipeline repository when one is given", () => {
         assert.noFile([".azure/pipeline-core.yml"]);
-        if (!useAzureDevOps) {
+        if (!useAzureDevOps || !pipelineRepository) {
           return;
         }
 
@@ -235,6 +235,21 @@ describe("generator-btp:cap", () => {
           "azure-pipelines.yaml",
           /template:\s*cap-pipeline\.yml@cap/,
         );
+      });
+
+      it("should generate a self-contained pipeline without a shared repository", () => {
+        if (!useAzureDevOps || pipelineRepository) {
+          return;
+        }
+
+        assert.noFileContent("azure-pipelines.yaml", /resources:/);
+        assert.noFileContent("azure-pipelines.yaml", /template:/);
+        assert.fileContent("azure-pipelines.yaml", /- script: npm test/);
+        assert.fileContent(
+          "azure-pipelines.yaml",
+          /mbt build --mtar archive\.mtar/,
+        );
+        assert.fileContent("azure-pipelines.yaml", /PublishPipelineArtifact@1/);
       });
 
       it("should conditionally create Azure DevOps setup scripts", () => {
